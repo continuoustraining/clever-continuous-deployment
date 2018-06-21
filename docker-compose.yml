@@ -1,7 +1,39 @@
-app:
-  build: .
-  dockerfile: Dockerfile
-  ports:
-   - "80:80"
-  volumes:
-   - .:/var/www
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    networks:
+      - public
+      - private
+    volumes:
+     - .:/var/www
+
+  mysql:
+    image: mysql:5.6
+    expose:
+      - 3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    networks:
+      - private
+    labels:
+      traefik.enable: "false"
+
+networks:
+  private:
+    driver: bridge
+  public:
+    driver: bridge
